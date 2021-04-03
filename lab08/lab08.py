@@ -8,6 +8,11 @@ def convert_link(link):
     []
     """
     "*** YOUR CODE HERE ***"
+    list_res = []
+    while link is not Link.empty:
+        list_res.append(link.first)
+        link = link.rest
+    return list_res
 
 
 def every_other(s):
@@ -28,6 +33,12 @@ def every_other(s):
     Link(4)
     """
     "*** YOUR CODE HERE ***"
+    if s is Link.empty:
+        return
+    while s is not Link.empty and s.rest is not Link.empty:
+        s.rest = s.rest.rest
+        s = s.rest
+    return
 
 
 def cumulative_mul(t):
@@ -40,6 +51,18 @@ def cumulative_mul(t):
     Tree(105, [Tree(15, [Tree(5)]), Tree(7)])
     """
     "*** YOUR CODE HERE ***"
+
+    def helper(t):
+        res = t.label
+        if t.is_leaf():
+            return res
+        for b in t.branches:
+            assert (b is not None)
+            res *= helper(b)
+        t.label = res
+        return res
+
+    helper(t)
 
 
 def has_cycle(link):
@@ -57,6 +80,14 @@ def has_cycle(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    fast, slow = link, link
+    while fast is not Link.empty and fast.rest is not Link.empty:
+        fast = fast.rest.rest
+        slow = slow.rest
+        if fast is slow:
+            return True
+    return False
+
 
 def has_cycle_constant(link):
     """Return whether link contains a cycle.
@@ -70,6 +101,7 @@ def has_cycle_constant(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    return has_cycle(link)
 
 
 def reverse_other(t):
@@ -86,6 +118,28 @@ def reverse_other(t):
     Tree(1, [Tree(8, [Tree(3, [Tree(5), Tree(4)]), Tree(6, [Tree(7)])]), Tree(2)])
     """
     "*** YOUR CODE HERE ***"
+    # todo: wrong! not switch the node of the whole level, but the node of the same node, use dfs
+    depth = 0
+    node_list = []
+    node_list.append(t)
+    sz = len(node_list)
+    while sz != 0:
+        # string = "".join([str(node) for node in node_list])
+        # print(string)
+        if depth % 2 == 1:
+            label_list = [node.label for node in node_list[:sz]]
+            label_list.reverse()
+            for index, node in enumerate(node_list[:sz]):
+                node.label = label_list[index]
+                for branch in node.branches:
+                    node_list.append(branch)
+        else:
+            for node in node_list[:sz]:
+                for branch in node.branches:
+                    node_list.append(branch)
+        node_list = node_list[sz:]
+        sz = len(node_list)
+        depth += 1
 
 
 class Link:
@@ -140,6 +194,7 @@ class Tree:
     >>> t.branches[1].is_leaf()
     True
     """
+
     def __init__(self, label, branches=[]):
         for b in branches:
             assert isinstance(b, Tree)
@@ -202,5 +257,18 @@ class Tree:
             for b in t.branches:
                 tree_str += print_tree(b, indent + 1)
             return tree_str
+
         return print_tree(self).rstrip()
 
+
+def main():
+    t = Tree(1, [Tree(2, [Tree(3, [Tree(4), Tree(5)]), Tree(6, [Tree(7)])]), Tree(8)])
+    # right: Tree(1, [Tree(8, [Tree(3, [Tree(5), Tree(4)]), Tree(6, [Tree(7)])]), Tree(2)])
+    # wrong: Tree(1, [Tree(8, [Tree(3, [Tree(7), Tree(5)]), Tree(6, [Tree(4)])]), Tree(2)])
+    print(len(t.branches))
+    reverse_other(t)
+    print(t.__repr__())
+
+
+if __name__ == "__main__":
+    main()
