@@ -27,6 +27,7 @@ def read(s):
     >>> read('  ')  # returns None
     """
     src = Buffer(tokenize(s))
+    # src is a list of token
     if src.current() is not None:
         return read_expr(src)
 
@@ -54,6 +55,10 @@ def take(src, allowed_characters):
     return result
 
 def next_token(src):
+    """
+    return the next token, skip the WHITESPACE, and only return the whole NUMERAL or SYMBOL
+    if the next token is in DELIMITERS "(),:" will only return one character
+    """
     take(src, WHITESPACE)  # skip whitespace
     c = src.current()
     if c is None:
@@ -108,18 +113,18 @@ def read_comma_separated(src, reader):
     if src.current() in (':', ')'):
         return []
     else:
-        s = [reader(src)]
+        s = [reader(src)]  # read_expr recursively
         while src.current() == ',':
             src.pop_first()
-            s.append(reader(src))
-        return s
+            s.append(reader(src))  # read_expr() --> read_comma_separated() / read_call_expr () --> read_expr() --> ...
+        return s                   # a little redundant, i think
 
 def read_call_expr(src, operator):
-    while src.current() == '(':
+    while src.current() == '(':  # redundant (
         src.pop_first()
         operands = read_comma_separated(src, read_expr)
         src.expect(')')
-        operator = CallExpr(operator, operands)
+        operator = CallExpr(operator, operands)  #
     return operator
 
 def read_param(src):
