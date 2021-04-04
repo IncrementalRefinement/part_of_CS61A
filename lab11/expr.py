@@ -107,6 +107,7 @@ class Name(Expr):
         None
         """
         "*** YOUR CODE HERE ***"
+        return env.get(self.var_name)
 
     def __str__(self):
         return self.var_name
@@ -173,6 +174,11 @@ class CallExpr(Expr):
         Number(14)
         """
         "*** YOUR CODE HERE ***"
+        prim_func = self.operator.eval(env)  # the K-V pair in env in PrimitiveFunction object
+        arguments = [item.eval(env) for item in self.operands]
+        # print(arguments)
+        res = prim_func.apply(arguments)
+        return res
 
     def __str__(self):
         function = str(self.operator)
