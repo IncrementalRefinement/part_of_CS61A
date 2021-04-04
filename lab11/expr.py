@@ -176,7 +176,7 @@ class CallExpr(Expr):
         "*** YOUR CODE HERE ***"
         prim_func = self.operator.eval(env)  # the K-V pair in env in PrimitiveFunction object
         arguments = [item.eval(env) for item in self.operands]
-        # print(arguments)
+        # todo: self env instead of parent env
         res = prim_func.apply(arguments)
         return res
 
@@ -288,6 +288,11 @@ class LambdaFunction(Value):
             raise TypeError("Oof! Cannot apply number {} to arguments {}".format(
                 comma_separated(self.parameters), comma_separated(arguments)))
         "*** YOUR CODE HERE ***"
+        # todo: self env instead of parent env
+        self_env = self.parent.copy()
+        for item in zip(self.parameters, arguments):
+            self_env[item[0]] = item[1]
+        return self.body.eval(self_env)
 
     def __str__(self):
         definition = LambdaExpr(self.parameters, self.body)
